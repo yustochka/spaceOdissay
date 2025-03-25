@@ -10,6 +10,6 @@ module com.example.spaceodissay {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
 
-    exports app;
+    exports app.gui;
     opens app to javafx.fxml;
 }
