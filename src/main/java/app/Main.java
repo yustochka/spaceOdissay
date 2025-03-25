@@ -4,44 +4,41 @@ import app.solver.EulerSolver;
 import app.solver.RK4Solver;
 import app.util.vector3;
 import app.util.DerivativeFunction;
+import app.tests.LotkaVolterra;
+
 
 import java.util.List;
 
 
 public class Main {
     public static void main(String[] args) {
-        // GRAVITY
-//        DerivativeFunction gravity = (state, t) -> new vector3(0, -9.81, 0);
-        // DECAY
-        DerivativeFunction decay = (state, t) -> new vector3(0, -0.5 * state.getY(), 0);
+        // --- Lotka-Volterra Model ---
+        DerivativeFunction model = LotkaVolterra.getModel();
+        vector3 initialState = LotkaVolterra.getInitialState();
 
-
-        // Initial state: starting at height 100
-        vector3 initialState = new vector3(0, 100, 0);
-
-        double t0 = 0; // initial time
-        double tf = 2; // final time
-        double dt = 0.1; // time step size
+        double t0 = 0;
+        double tf = 20;
+        double dt = 0.1;
 
         // Solve with Euler
         EulerSolver euler = new EulerSolver();
-        List<vector3> eulerResult = euler.solve(decay, initialState, t0, tf, dt);
+        List<vector3> eulerResult = euler.solve(model, initialState, t0, tf, dt);
 
         // Solve with RK4
         RK4Solver rk4 = new RK4Solver();
-        List<vector3> rkResult = rk4.solve(decay, initialState, t0, tf, dt);
+        List<vector3> rkResult = rk4.solve(model, initialState, t0, tf, dt);
 
-        // Print header
-        System.out.println("Time\tEuler Y\t\tRK4 Y\t\tExact Y");
+        // Print results
+        System.out.println("Time\tPrey_Euler\tPred_Euler\tPrey_RK4\tPred_RK4");
+
+        //FOR REPORT: The system shows typical Lotka-Volterra oscillations. Initially, prey are abundant and predators thrive. As prey are eaten, predator numbers increase, but this eventually leads to a food shortage, causing predator decline. Prey then recover, and the cycle repeats.
+        //RK4 preserves this dynamic better over longer times than Euler, which tends to dampen or distort the cycles.
 
         double time = t0;
         for (int i = 0; i < eulerResult.size(); i++) {
-//            double exactY = 100 + 0 * time + 0.5 * (-9.81) * time * time; // for gravity
-            double exactY = 100 * Math.exp(-0.5 * time); // for decay
-            double eulerY = eulerResult.get(i).getY();
-            double rk4Y = rkResult.get(i).getY();
-
-            System.out.printf("%.1f\t%.5f\t%.5f\t%.5f%n", time, eulerY, rk4Y, exactY);
+            vector3 e = eulerResult.get(i);
+            vector3 r = rkResult.get(i);
+            System.out.printf("%.1f |\t%.4f |\t%.4f |\t%.4f |\t%.4f%n", time, e.getX(), e.getY(), r.getX(), r.getY());
             time += dt;
         }
     }
