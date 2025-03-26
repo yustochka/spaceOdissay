@@ -11,5 +11,6 @@ module com.example.spaceodissay {
     requires com.almasb.fxgl.all;
 
     exports app.gui;
-    opens app to javafx.fxml;
+    opens app.gui to javafx.fxml;
+
 }
